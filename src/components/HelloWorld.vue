@@ -1,46 +1,130 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <div class="wraper">
+      <vue2-org-tree name="test"
+        :data="data"
+        :label-class-name="labelClassName"
+        :collapsable="true"
+        :render-content="renderContent"
+        @on-expand="onExpand"
+        @on-node-click="onNodeClick"/>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  data() {
+    return {
+      data: {
+        id: 0,
+        label: "XXX科技有限公司",
+        children: [
+          {
+            id: 2,
+            label: "产品研发部",
+            expand: 'expanded',
+            children: [
+              {
+                id: 5,
+                label: "研发-前端"
+              },
+              {
+                id: 6,
+                label: "研发-后端"
+              },
+              {
+                id: 9,
+                label: "UI设计"
+              },
+              {
+                id: 10,
+                label: "产品经理"
+              }
+            ]
+          },
+          {
+            id: 3,
+            label: "销售部",
+            children: [
+              {
+                id: 7,
+                label: "销售一部"
+              },
+              {
+                id: 8,
+                label: "销售二部"
+              }
+            ]
+          },
+          {
+            id: 4,
+            label: "财务部"
+          },
+          {
+            id: 9,
+            label: "HR人事"
+          }
+        ]
+      },
+      horizontal: true,
+      collapsable: false,
+      labelClassName: "bg-white"
+    };
+  },
+  methods: {
+    renderContent(h, data) {
+      return data.label;
+    },
+    onExpand(data) {
+      console.log('onexpand', data);
+      if ("expand" in data) {
+        data.expand = !data.expand;
+        if (!data.expand && data.children) {
+          this.collapse(data.children);
+        }
+      } else {
+        this.$set(data, "expand", true);
+      }
+    },
+    onNodeClick(e, data) {
+      // console.log('e', e);
+      // console.log('data', data);
+    },
+    collapse(list) {
+      var _this = this;
+      list.forEach(function(child) {
+        if (child.expand) {
+          child.expand = false;
+        }
+        child.children && _this.collapse(child.children);
+      });
+    },
+    expandChange() {
+      this.toggleExpand(this.data, this.expandAll);
+    },
+    toggleExpand(data, val) {
+      var _this = this;
+      if (Array.isArray(data)) {
+        data.forEach(function(item) {
+          _this.$set(item, "expand", val);
+          if (item.children) {
+            _this.toggleExpand(item.children, val);
+          }
+        });
+      } else {
+        this.$set(data, "expand", val);
+        if (data.children) {
+          _this.toggleExpand(data.children, val);
+        }
+      }
+    }
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="less" scoped>
 h3 {
   margin: 40px 0 0;
 }
@@ -54,5 +138,8 @@ li {
 }
 a {
   color: #42b983;
+}
+.wraper{
+
 }
 </style>
